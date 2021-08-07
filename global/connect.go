@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func connect() error {
+func ConnectWs() error {
 	var e error
 	if Conn, _, e = websocket.DefaultDialer.Dial(
 		func() string {
@@ -18,7 +18,7 @@ func connect() error {
 }
 
 func init() {
-	for connect() != nil {
+	for ConnectWs() != nil {
 	}
 	for Conn.WriteJSON(&models.VpsInit{
 		Name: Config.Name,
