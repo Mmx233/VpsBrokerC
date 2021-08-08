@@ -21,9 +21,17 @@ func SReceiver() {
 	}
 }
 
-func GetSelf() error {
-	//tool.HTTP.Get(
-	//	util.Url.Http(),
-	//
-	//)
+func GetSelf() (string, error) {
+	_, res, e := tool.HTTP.Get(
+		util.Url.Http(),
+		util.Url.AuthHeader(),
+		nil, nil, true)
+	if e != nil {
+		return "", e
+	}
+	if res["code"].(float64) != 0 {
+		return "", global.ErrRemoteRefused
+	}
+
+	return res["data"].(map[string]interface{})["ip"].(string), nil
 }

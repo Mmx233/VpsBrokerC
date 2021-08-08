@@ -28,3 +28,9 @@ func (a *url) Ws() string {
 func (a *url) Http() string {
 	return "http" + a.addr()
 }
+
+func (a *url) AuthHeader() map[string]interface{} {
+	return map[string]interface{}{
+		"Authorization": global.Config.Remote.AccessKey,
+	}
+}
