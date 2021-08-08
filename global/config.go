@@ -13,7 +13,7 @@ func init() {
 	if e := config.Load(config.Options{
 		Config: &Config,
 		Default: &models.Config{
-			RemoteAddr: "ws://1.2.3.4:56",
+			RemotePort: 574,
 			Port:       575,
 		},
 		FillDefault: true,
