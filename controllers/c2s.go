@@ -23,7 +23,7 @@ func SReceiver() {
 
 func GetSelf() (string, error) {
 	_, res, e := tool.HTTP.Get(
-		util.Url.Http(),
+		util.Url.Http()+"/c/self",
 		util.Url.AuthHeader(),
 		nil, nil, true)
 	if e != nil {

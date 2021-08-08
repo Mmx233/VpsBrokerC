@@ -22,7 +22,7 @@ func (a *url) addr() string {
 }
 
 func (a *url) Ws() string {
-	return "ws" + a.addr()
+	return "ws" + a.addr() + "/c/"
 }
 
 func (a *url) Http() string {
