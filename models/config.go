@@ -1,9 +1,18 @@
 package models
 
 type Config struct {
-	RemoteIp   string
-	RemotePort uint
-	RemoteSSL  bool
-	Port       uint
-	Name       string
+	Settings Settings
+	Remote   Remote
+}
+
+type Settings struct {
+	Port uint
+	Name string
+}
+
+type Remote struct {
+	Ip        string
+	Port      uint
+	SSL       bool
+	AccessKey string
 }

@@ -10,7 +10,7 @@ type url struct{}
 var Url url
 
 func (*url) s() string {
-	if global.Config.RemoteSSL {
+	if global.Config.Remote.SSL {
 		return "s"
 	}
 
@@ -18,7 +18,7 @@ func (*url) s() string {
 }
 
 func (a *url) addr() string {
-	return fmt.Sprintf("%s://%s:%d", a.s(), global.Config.RemoteIp, global.Config.RemotePort)
+	return fmt.Sprintf("%s://%s:%d", a.s(), global.Config.Remote.Ip, global.Config.Remote.Port)
 }
 
 func (a *url) Ws() string {

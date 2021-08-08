@@ -22,7 +22,8 @@ func SReceiver() {
 }
 
 func GetSelf() error {
-	tool.HTTP.Get(
-		util.Url.Http(),
-	)
+	//tool.HTTP.Get(
+	//	util.Url.Http(),
+	//
+	//)
 }

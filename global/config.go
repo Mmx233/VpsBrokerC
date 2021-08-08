@@ -13,8 +13,12 @@ func init() {
 	if e := config.Load(config.Options{
 		Config: &Config,
 		Default: &models.Config{
-			RemotePort: 574,
-			Port:       575,
+			Settings: models.Settings{
+				Port: 575,
+			},
+			Remote: models.Remote{
+				Port: 574,
+			},
 		},
 		FillDefault: true,
 	}); e != nil {

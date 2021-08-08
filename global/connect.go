@@ -20,8 +20,8 @@ func init() {
 	for ConnectWs() != nil {
 	}
 	for Conn.WriteJSON(&models.VpsInit{
-		Name: Config.Name,
-		Port: Config.Port,
+		Name: Config.Settings.Name,
+		Port: Config.Settings.Port,
 	}) != nil {
 	}
 }
