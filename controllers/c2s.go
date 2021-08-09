@@ -13,7 +13,11 @@ func init() {
 
 func SReceiver() {
 	for {
-		e := global.Conn.ReadJSON(&global.Neighbors)
+		var t map[string]uint
+		e := global.Conn.ReadJSON(&t)
+		global.Neighbors.Lock.Lock()
+		global.Neighbors.Data=t
+		global.Neighbors.Lock.Unlock()
 		if e != nil {
 			_ = global.Conn.Close()
 			for global.ConnectWs() != nil {

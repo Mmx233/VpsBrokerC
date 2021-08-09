@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"os"
+	"sync"
 )
 
 func init() {
@@ -43,6 +44,11 @@ func init() {
 
 var Conn *websocket.Conn
 
-var Neighbors map[string]uint
+var Neighbors = struct {
+	Data map[string]uint
+	Lock *sync.RWMutex
+}{
+	Lock: &sync.RWMutex{},
+}
 
 var Self string
