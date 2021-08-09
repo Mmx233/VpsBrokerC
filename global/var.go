@@ -1,6 +1,7 @@
 package global
 
 import (
+	"github.com/Mmx233/VpsBrokerC/controllers"
 	"github.com/Mmx233/VpsBrokerC/models"
 	"github.com/Mmx233/VpsBrokerC/util"
 	"github.com/gorilla/websocket"
@@ -28,6 +29,16 @@ func init() {
 		os.Exit(2)
 	}
 
+	if util.Try(func() error {
+		var e error
+		Self,e=controllers.GetSelf()
+		return e
+	},5, func(e error) {
+		log.Println("获取ip失败：/n", e)
+	})!=nil {
+		log.Println("超出重试次数")
+		os.Exit(2)
+	}
 }
 
 var Conn *websocket.Conn
