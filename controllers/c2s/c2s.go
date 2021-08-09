@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/Mmx233/VpsBrokerC/controllers/c2c"
 	"github.com/Mmx233/VpsBrokerC/global"
 	"github.com/Mmx233/VpsBrokerC/util"
 	"github.com/Mmx233/tool"
@@ -25,7 +26,7 @@ func SReceiver() {
 			}
 		}
 
-
+		controllers.Conn.Renew()
 	}
 }
 

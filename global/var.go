@@ -1,7 +1,7 @@
 package global
 
 import (
-	"github.com/Mmx233/VpsBrokerC/controllers"
+	"github.com/Mmx233/VpsBrokerC/controllers/c2s"
 	"github.com/Mmx233/VpsBrokerC/models"
 	"github.com/Mmx233/VpsBrokerC/util"
 	"github.com/gorilla/websocket"
@@ -32,7 +32,7 @@ func init() {
 
 	if util.Try(func() error {
 		var e error
-		Self,e=controllers.GetSelf()
+		Self,e= controllers.GetSelf()
 		return e
 	},5, func(e error) {
 		log.Println("获取ip失败：/n", e)
