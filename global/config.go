@@ -7,9 +7,11 @@ import (
 	"os"
 )
 
+// Config 全局配置
 var Config models.Config
 
 func init() {
+	//读取配置文件
 	if e := config.Load(config.Options{
 		Config: &Config,
 		Default: &models.Config{

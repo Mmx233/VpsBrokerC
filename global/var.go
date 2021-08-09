@@ -42,8 +42,10 @@ func init() {
 	}
 }
 
+// Conn c2s连接
 var Conn *websocket.Conn
 
+// Neighbors c2c列表
 var Neighbors = struct {
 	Data map[string]uint
 	Lock *sync.RWMutex
@@ -51,4 +53,5 @@ var Neighbors = struct {
 	Lock: &sync.RWMutex{},
 }
 
+// Self 自身ip
 var Self string

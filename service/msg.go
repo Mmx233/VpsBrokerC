@@ -52,6 +52,7 @@ func (a *msg) len() int {
 }
 
 func (a *msg) Init() {
+	//信息入栈
 	go func() {
 		for {
 			e := <-a.Channel
@@ -59,6 +60,7 @@ func (a *msg) Init() {
 		}
 	}()
 
+	//出栈转推送
 	go func() {
 		for {
 			if a.len() == 0 {
@@ -76,6 +78,7 @@ func (a *msg) Init() {
 		}
 	}()
 
+	//推送
 	go func() {
 		for {
 			e := <-a.innerChannel

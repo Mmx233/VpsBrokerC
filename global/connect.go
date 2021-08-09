@@ -6,6 +6,7 @@ import (
 	"log"
 )
 
+// ConnectWs 连接service
 func ConnectWs() error {
 	var e error
 	if Conn, _, e = websocket.DefaultDialer.Dial(

@@ -12,6 +12,7 @@ func init() {
 	go SReceiver()
 }
 
+// SReceiver c2s ws连接协程
 func SReceiver() {
 	for {
 		var t map[string]uint

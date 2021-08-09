@@ -1,6 +1,8 @@
 package util
 
-import "time"
+import (
+	"time"
+)
 
 func Try(e func() error, retry uint, retryMsg func(e error)) error {
 	var num uint
