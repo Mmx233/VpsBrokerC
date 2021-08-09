@@ -4,6 +4,7 @@ import (
 	"github.com/Mmx233/VpsBrokerC/global"
 	"github.com/Mmx233/VpsBrokerC/util"
 	"github.com/Mmx233/tool"
+	"time"
 )
 
 func init() {
@@ -16,8 +17,11 @@ func SReceiver() {
 		if e != nil {
 			_ = global.Conn.Close()
 			for global.ConnectWs() != nil {
+				time.Sleep(time.Second/2)
 			}
 		}
+
+
 	}
 }
 
