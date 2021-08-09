@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/Mmx233/VpsBrokerC/global"
 	"github.com/gorilla/websocket"
 	"sync"
 )
@@ -35,6 +36,37 @@ func (a *conn) Connect(ip string, port uint) error {
 	return nil
 }
 
-func (*conn) Renew() {
+func (a *conn) Renew() {
+	global.Neighbors.Lock.RLock()
+	defer global.Neighbors.Lock.RUnlock()
+	a.lock.Lock()
+	defer a.lock.Unlock()
 
+	var del bool
+	for k,_:=range a.Pool {
+		if _ ,ok:=global.Neighbors.Data[k];!ok {
+			_ = a.Pool[k].Close()
+			delete(a.Pool,k)
+			del=true
+		}
+	}
+
+	for k,v:=range global.Neighbors.Data {
+		if _,ok:=a.Pool[k];!ok {
+			go a.Connection(k,v)
+		}
+	}
+
+	if del {
+		var t =make(map[string]*websocket.Conn,len(a.Pool))
+		for k,v:=range a.Pool {
+			t[k]=v
+		}
+		a.Pool=t
+	}
+}
+
+func (*conn)Connection(ip string,port uint){
+
+	//todo 断连时检查是否是主动删除
 }
