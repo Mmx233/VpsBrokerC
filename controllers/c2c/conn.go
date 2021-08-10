@@ -30,16 +30,14 @@ var Conn = conn{
 
 // Connect ws连接
 func (a *conn) Connect(ip string, port uint) (*websocket.Conn, error) {
-	a.lock.RLock()
+	a.lock.Lock()
+	defer a.lock.Unlock()
 	conn, ok := a.Pool[ip]
-	a.lock.RUnlock()
 	if ok {
 		_ = conn.Close()
 	}
 
 	var e error
-	a.lock.Lock()
-	defer a.lock.Unlock()
 	a.Pool[ip], _, e = websocket.DefaultDialer.Dial(
 		"ws://"+ip+":"+fmt.Sprint(port), a.authHeader)
 
@@ -66,7 +64,7 @@ func (a *conn) Renew() {
 	//连接新客户端
 	for k, v := range global.Neighbors.Data {
 		if _, ok := a.Pool[k]; !ok {
-			go a.Connection(k, v.Port)
+			go a.ForceConnect(k, v.Port)
 		}
 	}
 
@@ -80,20 +78,10 @@ func (a *conn) Renew() {
 	}
 }
 
-// Connection 客户端连接协程
-func (a *conn) Connection(ip string, port uint) {
-start:
-	//建立连接
-	conn, e := a.Connect(ip, port)
-	if e != nil {
-		for e != nil {
-			log.Println("连接client失败：/n", e)
-			time.Sleep(time.Second)
-			conn, e = a.Connect(ip, port)
-		}
-	}
-
+// MakeConnChan 处理客户端连接协程
+func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 	//心跳
+	var e error
 	var hb models.HeartBeat
 	var c = make(chan error, 1)
 	go func() { //接收心跳包
@@ -123,12 +111,25 @@ start:
 
 	//连接断开
 	a.lock.RLock()
+	defer a.lock.RUnlock()
 	if _, ok := a.Pool[ip]; !ok {
 		conn = nil
-		a.lock.RUnlock()
 		return
-	} else {
-		a.lock.RUnlock()
-		goto start
 	}
+
+	go a.ForceConnect(ip, port)
+}
+
+// ForceConnect 主动连接客户端
+func (a *conn) ForceConnect(ip string, port uint) {
+	conn, e := a.Connect(ip, port)
+	if e != nil {
+		for e != nil {
+			log.Println("连接client失败：/n", e)
+			time.Sleep(time.Second)
+			conn, e = a.Connect(ip, port)
+		}
+	}
+
+	a.MakeConnChan(ip, port, conn)
 }
