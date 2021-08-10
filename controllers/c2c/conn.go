@@ -104,21 +104,14 @@ func (a *conn)Connection(ip string,port uint){
 			time.Sleep(time.Second)
 		}
 	}()
-	for  {//处理心跳超时
+	for e==nil {//处理心跳超时
 		select {
 		case <-c:
 			if e==nil {
-				//todo up
+				service.Stat.Up(ip,hb.Time)
 			}
 		case <-time.After(time.Second*5):
-			service.Msg.Channel<-&models.HeartBeat{
-			Type: "down",
-			TargetIp: ip,
-			Time: hb.Time,
-			}
-		}
-		if e!=nil {
-			break
+			service.Stat.Down(ip)
 		}
 	}
 
