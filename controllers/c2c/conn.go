@@ -7,13 +7,19 @@ import (
 	"github.com/Mmx233/VpsBrokerC/service"
 	"github.com/gorilla/websocket"
 	"log"
+	"net/http"
 	"sync"
 	"time"
 )
 
+func init() {
+	Conn.authHeader.Add("Authorization", global.Config.Remote.AccessKey)
+}
+
 type conn struct {
-	Pool map[string]*websocket.Conn
-	lock *sync.RWMutex
+	Pool       map[string]*websocket.Conn
+	lock       *sync.RWMutex
+	authHeader http.Header
 }
 
 // Conn c2c连接池
@@ -23,7 +29,7 @@ var Conn = conn{
 }
 
 // Connect ws连接
-func (a *conn) Connect(ip string, port uint) (*websocket.Conn,error) {
+func (a *conn) Connect(ip string, port uint) (*websocket.Conn, error) {
 	a.lock.RLock()
 	conn, ok := a.Pool[ip]
 	a.lock.RUnlock()
@@ -35,9 +41,9 @@ func (a *conn) Connect(ip string, port uint) (*websocket.Conn,error) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 	a.Pool[ip], _, e = websocket.DefaultDialer.Dial(
-		"ws://"+ip+":"+fmt.Sprint(port), nil)
+		"ws://"+ip+":"+fmt.Sprint(port), a.authHeader)
 
-	return a.Pool[ip],e
+	return a.Pool[ip], e
 }
 
 // Renew 与neighbor列表同步
@@ -49,79 +55,79 @@ func (a *conn) Renew() {
 
 	//断开被删除客户端
 	var del bool
-	for k:=range a.Pool {
-		if _ ,ok:=global.Neighbors.Data[k];!ok {
+	for k := range a.Pool {
+		if _, ok := global.Neighbors.Data[k]; !ok {
 			_ = a.Pool[k].Close()
-			delete(a.Pool,k)
-			del=true
+			delete(a.Pool, k)
+			del = true
 		}
 	}
 
 	//连接新客户端
-	for k,v:=range global.Neighbors.Data {
-		if _,ok:=a.Pool[k];!ok {
-			go a.Connection(k,v.Port)
+	for k, v := range global.Neighbors.Data {
+		if _, ok := a.Pool[k]; !ok {
+			go a.Connection(k, v.Port)
 		}
 	}
 
 	//回收内存
 	if del {
-		var t =make(map[string]*websocket.Conn,len(a.Pool))
-		for k,v:=range a.Pool {
-			t[k]=v
+		var t = make(map[string]*websocket.Conn, len(a.Pool))
+		for k, v := range a.Pool {
+			t[k] = v
 		}
-		a.Pool=t
+		a.Pool = t
 	}
 }
 
 // Connection 客户端连接协程
-func (a *conn)Connection(ip string,port uint){
-	start:
-		//建立连接
-	conn,e:=a.Connect(ip,port)
-	if e!=nil {
-		for e!=nil {
-			log.Println("连接client失败：/n",e)
+func (a *conn) Connection(ip string, port uint) {
+start:
+	//建立连接
+	conn, e := a.Connect(ip, port)
+	if e != nil {
+		for e != nil {
+			log.Println("连接client失败：/n", e)
 			time.Sleep(time.Second)
-			conn,e=a.Connect(ip,port)
+			conn, e = a.Connect(ip, port)
 		}
 	}
 
 	//心跳
 	var hb models.HeartBeat
-	var c = make(chan error,1)
-	go func() {//接收心跳包
-		for e!=nil {
-			e=conn.ReadJSON(&hb)
-			c<-e
+	var c = make(chan error, 1)
+	go func() { //接收心跳包
+		for e != nil {
+			e = conn.ReadJSON(&hb)
+			c <- e
 		}
 	}()
-	go func() {//发送心跳包
+	go func() { //发送心跳包
 		for conn.WriteJSON(&models.HeartBeat{
 			Type: "heartbeat",
 			Time: time.Now().UnixNano(),
-		})!=nil {
+		}) != nil {
 			time.Sleep(time.Second)
 		}
 	}()
-	for e==nil {//处理心跳超时
+	for e == nil { //处理心跳超时
 		select {
 		case <-c:
-			if e==nil {
-				service.Stat.Up(ip,hb.Time)
+			if e == nil {
+				service.Stat.Up(ip, hb.Time)
 			}
-		case <-time.After(time.Second*5):
+		case <-time.After(time.Second * 5):
 			service.Stat.Down(ip)
 		}
 	}
 
 	//连接断开
 	a.lock.RLock()
-	if _,ok:=a.Pool[ip];!ok {
-		conn=nil
+	if _, ok := a.Pool[ip]; !ok {
+		conn = nil
 		a.lock.RUnlock()
 		return
-	}else {
+	} else {
 		a.lock.RUnlock()
 		goto start
 	}

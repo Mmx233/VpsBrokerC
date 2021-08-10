@@ -20,6 +20,7 @@ type msg struct {
 	Channel      chan *models.HeartBeat
 }
 
+// Msg 上报信息
 var Msg = msg{
 	list:         &list.List{},
 	lock:         &sync.RWMutex{},
