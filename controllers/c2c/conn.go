@@ -37,11 +37,17 @@ func (a *conn) Connect(ip string, port uint) (*websocket.Conn, error) {
 		_ = conn.Close()
 	}
 
-	var e error
-	a.Pool[ip], _, e = websocket.DefaultDialer.Dial(
+	conn2, _, e := websocket.DefaultDialer.Dial(
 		"ws://"+ip+":"+fmt.Sprint(port), a.authHeader)
 
-	return a.Pool[ip], e
+	return conn2, e
+}
+
+func (a *conn) Connected(ip string) bool {
+	a.lock.RLock()
+	v, ok := a.Pool[ip]
+	a.lock.RUnlock()
+	return ok && v != nil
 }
 
 // Renew 与neighbor列表同步
@@ -80,6 +86,10 @@ func (a *conn) Renew() {
 
 // MakeConnChan 处理客户端连接协程
 func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
+	a.lock.Lock()
+	a.Pool[ip] = conn
+	a.lock.Unlock()
+
 	//心跳
 	var e error
 	var hb models.HeartBeat
@@ -112,11 +122,14 @@ func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 	//连接断开
 	a.lock.RLock()
 	defer a.lock.RUnlock()
-	if _, ok := a.Pool[ip]; !ok {
-		conn = nil
+	if conn == nil { //预防冲突
 		return
 	}
-
+	_ = conn.Close()
+	conn = nil
+	if _, ok := a.Pool[ip]; !ok {
+		return
+	}
 	go a.ForceConnect(ip, port)
 }
 
