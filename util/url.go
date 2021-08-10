@@ -25,7 +25,7 @@ func (a *url) addr(ip string, port uint, ssl bool) string {
 
 // Ws websocket连接地址
 func (a *url) Ws(ip string, port uint, ssl bool) string {
-	return "ws" + a.addr(ip, port, ssl)
+	return "ws" + a.addr(ip, port, ssl) + "/c/"
 }
 
 // Http http连接地址

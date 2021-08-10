@@ -1,7 +1,6 @@
 package router
 
 import (
-	controllers "github.com/Mmx233/VpsBrokerC/controllers/c2c"
 	"github.com/Mmx233/VpsBrokerC/middlewares"
 	"github.com/gin-gonic/gin"
 )
@@ -13,5 +12,6 @@ func init() {
 	G = gin.Default()
 	G.Use(middlewares.Auth())
 
-	G.GET("/", controllers.ConnectWs)
+	routerC2c(G.Group("/c"))
+	routerC2p(G.Group("/p"))
 }

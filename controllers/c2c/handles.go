@@ -2,18 +2,9 @@ package controllers
 
 import (
 	"github.com/Mmx233/VpsBrokerC/global"
+	"github.com/Mmx233/VpsBrokerC/util"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
-	"net/http"
-	"time"
 )
-
-var upper = websocket.Upgrader{
-	HandshakeTimeout: time.Minute,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
 
 func ConnectWs(c *gin.Context) {
 	ip := c.ClientIP()
@@ -31,7 +22,7 @@ func ConnectWs(c *gin.Context) {
 		return
 	}
 
-	conn, err := upper.Upgrade(c.Writer, c.Request, nil)
+	conn, err := util.Upper.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		// bad request
 		return

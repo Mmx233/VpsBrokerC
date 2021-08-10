@@ -1,6 +1,8 @@
 package util
 
 import (
+	"github.com/gorilla/websocket"
+	"net/http"
 	"time"
 )
 
@@ -24,4 +26,11 @@ func Try(e func() error, retry uint, retryMsg func(e error)) error {
 	}
 
 	return nil
+}
+
+var Upper = websocket.Upgrader{
+	HandshakeTimeout: time.Minute,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
