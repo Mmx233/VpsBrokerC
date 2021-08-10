@@ -5,6 +5,7 @@ import (
 	"github.com/Mmx233/VpsBrokerC/global"
 	"github.com/Mmx233/VpsBrokerC/util"
 	"github.com/Mmx233/tool"
+	"sync"
 	"time"
 )
 
@@ -19,7 +20,19 @@ func SReceiver() {
 		e := global.Conn.ReadJSON(&t)
 		delete(t,global.Self)
 		global.Neighbors.Lock.Lock()
-		global.Neighbors.Data=t
+		for k,v:=range t {
+			if n,ok:=global.Neighbors.Data[k];ok {
+				n.Lock.Lock()
+				n.Port=v
+				n.Lock.Unlock()
+			}else {
+				global.Neighbors.Data[k]=&global.Neighbor{
+					Port:  v,
+					Delay: 0,
+					Lock:  &sync.Mutex{},
+				}
+			}
+		}
 		global.Neighbors.Lock.Unlock()
 		if e != nil {
 			_ = global.Conn.Close()

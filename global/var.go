@@ -45,11 +45,19 @@ func init() {
 // Conn c2s连接
 var Conn *websocket.Conn
 
+// Neighbor client信息
+type Neighbor struct {
+	Port uint
+	Delay int64
+	Lock *sync.Mutex
+}
+
 // Neighbors c2c列表
 var Neighbors = struct {
-	Data map[string]uint
+	Data map[string]*Neighbor
 	Lock *sync.RWMutex
 }{
+	Data: make(map[string]*Neighbor),
 	Lock: &sync.RWMutex{},
 }
 

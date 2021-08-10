@@ -48,26 +48,30 @@ func (a *conn) Renew() {
 	defer a.lock.Unlock()
 
 	//断开被删除客户端
-	for k,_:=range a.Pool {
+	var del bool
+	for k:=range a.Pool {
 		if _ ,ok:=global.Neighbors.Data[k];!ok {
 			_ = a.Pool[k].Close()
 			delete(a.Pool,k)
+			del=true
 		}
 	}
 
 	//连接新客户端
 	for k,v:=range global.Neighbors.Data {
 		if _,ok:=a.Pool[k];!ok {
-			go a.Connection(k,v)
+			go a.Connection(k,v.Port)
 		}
 	}
 
 	//回收内存
-	var t =make(map[string]*websocket.Conn,len(a.Pool))
-	for k,v:=range a.Pool {
-		t[k]=v
+	if del {
+		var t =make(map[string]*websocket.Conn,len(a.Pool))
+		for k,v:=range a.Pool {
+			t[k]=v
+		}
+		a.Pool=t
 	}
-	a.Pool=t
 }
 
 // Connection 客户端连接协程
