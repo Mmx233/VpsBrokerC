@@ -17,6 +17,7 @@ func SReceiver() {
 	for {
 		var t map[string]uint
 		e := global.Conn.ReadJSON(&t)
+		delete(t,global.Self)
 		global.Neighbors.Lock.Lock()
 		global.Neighbors.Data=t
 		global.Neighbors.Lock.Unlock()
