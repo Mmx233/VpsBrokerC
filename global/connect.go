@@ -10,7 +10,7 @@ import (
 func ConnectWs() error {
 	var e error
 	if Conn, _, e = websocket.DefaultDialer.Dial(
-		util.Url.Ws(), nil); e != nil {
+		util.Url.Ws(Config.Remote.Ip, Config.Remote.Port, Config.Remote.SSL)+"/c/", nil); e != nil {
 		log.Println(e)
 	}
 	return e

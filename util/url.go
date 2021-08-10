@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"github.com/Mmx233/VpsBrokerC/global"
 )
 
 type url struct{}
@@ -11,8 +10,8 @@ type url struct{}
 var Url url
 
 //判断ssl
-func (*url) s() string {
-	if global.Config.Remote.SSL {
+func (*url) s(ssl bool) string {
+	if ssl {
 		return "s"
 	}
 
@@ -20,23 +19,16 @@ func (*url) s() string {
 }
 
 //url不带协议部分
-func (a *url) addr() string {
-	return fmt.Sprintf("%s://%s:%d", a.s(), global.Config.Remote.Ip, global.Config.Remote.Port)
+func (a *url) addr(ip string, port uint, ssl bool) string {
+	return fmt.Sprintf("%s://%s:%d", a.s(ssl), ip, port)
 }
 
 // Ws websocket连接地址
-func (a *url) Ws() string {
-	return "ws" + a.addr() + "/c/"
+func (a *url) Ws(ip string, port uint, ssl bool) string {
+	return "ws" + a.addr(ip, port, ssl)
 }
 
 // Http http连接地址
-func (a *url) Http() string {
-	return "http" + a.addr()
-}
-
-// AuthHeader 鉴权头
-func (a *url) AuthHeader() map[string]interface{} {
-	return map[string]interface{}{
-		"Authorization": global.Config.Remote.AccessKey,
-	}
+func (a *url) Http(ip string, port uint, ssl bool) string {
+	return "http" + a.addr(ip, port, ssl)
 }

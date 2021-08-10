@@ -18,15 +18,15 @@ func SReceiver() {
 	for {
 		var t map[string]uint
 		e := global.Conn.ReadJSON(&t)
-		delete(t,global.Self)
+		delete(t, global.Self)
 		global.Neighbors.Lock.Lock()
-		for k,v:=range t {
-			if n,ok:=global.Neighbors.Data[k];ok {
+		for k, v := range t {
+			if n, ok := global.Neighbors.Data[k]; ok {
 				n.Lock.Lock()
-				n.Port=v
+				n.Port = v
 				n.Lock.Unlock()
-			}else {
-				global.Neighbors.Data[k]=&global.Neighbor{
+			} else {
+				global.Neighbors.Data[k] = &global.Neighbor{
 					Port:  v,
 					Delay: 0,
 					Lock:  &sync.Mutex{},
@@ -37,7 +37,7 @@ func SReceiver() {
 		if e != nil {
 			_ = global.Conn.Close()
 			for global.ConnectWs() != nil {
-				time.Sleep(time.Second/2)
+				time.Sleep(time.Second / 2)
 			}
 		}
 
@@ -47,8 +47,10 @@ func SReceiver() {
 
 func GetSelf() (string, error) {
 	_, res, e := tool.HTTP.Get(
-		util.Url.Http()+"/c/self",
-		util.Url.AuthHeader(),
+		util.Url.Http(global.Config.Remote.Ip, global.Config.Remote.Port, global.Config.Remote.SSL)+"/c/self",
+		map[string]interface{}{
+			"Authorization": global.Config.Remote.AccessKey,
+		},
 		nil, nil, true)
 	if e != nil {
 		return "", e

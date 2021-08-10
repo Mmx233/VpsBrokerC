@@ -1,7 +1,6 @@
 package global
 
 import (
-	"github.com/Mmx233/VpsBrokerC/controllers/c2s"
 	"github.com/Mmx233/VpsBrokerC/models"
 	"github.com/Mmx233/VpsBrokerC/util"
 	"github.com/gorilla/websocket"
@@ -29,17 +28,6 @@ func init() {
 		log.Println("超出重试次数")
 		os.Exit(2)
 	}
-
-	if util.Try(func() error {
-		var e error
-		Self,e= controllers.GetSelf()
-		return e
-	},5, func(e error) {
-		log.Println("获取ip失败：/n", e)
-	})!=nil {
-		log.Println("超出重试次数")
-		os.Exit(2)
-	}
 }
 
 // Conn c2s连接
@@ -47,9 +35,9 @@ var Conn *websocket.Conn
 
 // Neighbor client信息
 type Neighbor struct {
-	Port uint
+	Port  uint
 	Delay int64
-	Lock *sync.Mutex
+	Lock  *sync.Mutex
 }
 
 // Neighbors c2c列表
