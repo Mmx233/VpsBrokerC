@@ -95,7 +95,7 @@ func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 	var hb models.HeartBeat
 	var c = make(chan error, 1)
 	go func() { //接收心跳包
-		for e != nil {
+		for e == nil {
 			e = conn.ReadJSON(&hb)
 			c <- e
 		}
@@ -104,7 +104,7 @@ func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 		for conn.WriteJSON(&models.HeartBeat{
 			Type: "heartbeat",
 			Time: time.Now().UnixNano(),
-		}) != nil {
+		}) == nil {
 			time.Sleep(time.Second)
 		}
 	}()
