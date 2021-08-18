@@ -5,6 +5,7 @@ import (
 	"github.com/Mmx233/VpsBrokerC/global"
 	"github.com/Mmx233/VpsBrokerC/models"
 	"github.com/Mmx233/VpsBrokerC/service"
+	"github.com/Mmx233/VpsBrokerC/util"
 	"github.com/gorilla/websocket"
 	"log"
 	"sync"
@@ -41,6 +42,7 @@ func (a *conn) Connected(ip string) bool {
 	a.lock.RLock()
 	v, ok := a.Pool[ip]
 	a.lock.RUnlock()
+	util.Event.NewPeer(ip)
 	return ok && v != nil
 }
 
@@ -121,6 +123,7 @@ func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 	}
 	_ = conn.Close()
 	conn = nil
+	util.Event.LostPeer(ip)
 	if _, ok := a.Pool[ip]; !ok {
 		return
 	}
