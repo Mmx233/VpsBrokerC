@@ -9,10 +9,6 @@ import (
 	"time"
 )
 
-func init() {
-	go SReceiver()
-}
-
 // SReceiver c2s ws连接协程
 func SReceiver() {
 	util.Event.ServiceConnect()

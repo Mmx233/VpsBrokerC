@@ -18,4 +18,6 @@ func init() {
 		log.Println("超出重试次数")
 		os.Exit(2)
 	}
+
+	go SReceiver()
 }
