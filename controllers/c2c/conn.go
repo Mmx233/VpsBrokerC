@@ -7,19 +7,13 @@ import (
 	"github.com/Mmx233/VpsBrokerC/service"
 	"github.com/gorilla/websocket"
 	"log"
-	"net/http"
 	"sync"
 	"time"
 )
 
-func init() {
-	Conn.authHeader.Add("Authorization", global.Config.Remote.AccessKey)
-}
-
 type conn struct {
-	Pool       map[string]*websocket.Conn
-	lock       *sync.RWMutex
-	authHeader http.Header
+	Pool map[string]*websocket.Conn
+	lock *sync.RWMutex
 }
 
 // Conn c2c连接池
@@ -38,7 +32,7 @@ func (a *conn) Connect(ip string, port uint) (*websocket.Conn, error) {
 	}
 
 	conn2, _, e := websocket.DefaultDialer.Dial(
-		"ws://"+ip+":"+fmt.Sprint(port), a.authHeader)
+		"ws://"+ip+":"+fmt.Sprint(port), global.AuthHeader)
 
 	return conn2, e
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/Mmx233/VpsBrokerC/util"
 	"github.com/gorilla/websocket"
 	"log"
+	"net/http"
 	"os"
 	"sync"
 )
@@ -16,6 +17,8 @@ func init() {
 		os.Exit(2)
 	}
 }
+
+var AuthHeader = make(http.Header)
 
 // Conn c2s连接
 var Conn *websocket.Conn

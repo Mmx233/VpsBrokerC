@@ -12,6 +12,6 @@ func ConnectWs() error {
 	Conn, _, e = websocket.DefaultDialer.Dial(
 		util.Url.Ws(
 			Config.Remote.Host, Config.Remote.Port, Config.Remote.SSL)+"?name="+Config.Settings.Name+"&port="+fmt.Sprint(Config.Settings.Port),
-		nil)
+		AuthHeader)
 	return e
 }

@@ -31,4 +31,6 @@ func init() {
 
 		log.Fatalln("配置文件初始化失败：\n", e)
 	}
+
+	AuthHeader.Add("Authorization", Config.Remote.AccessKey)
 }
