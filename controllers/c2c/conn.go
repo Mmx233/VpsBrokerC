@@ -97,7 +97,7 @@ func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 		}
 	}()
 	go func() { //发送心跳包
-		for conn.WriteJSON(&models.HeartBeat{
+		for conn != nil && conn.WriteJSON(&models.HeartBeat{
 			Type: "heartbeat",
 			Time: time.Now().UnixNano(),
 		}) == nil {
