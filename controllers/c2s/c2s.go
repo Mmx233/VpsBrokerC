@@ -15,14 +15,17 @@ func init() {
 
 // SReceiver c2s ws连接协程
 func SReceiver() {
+	util.Event.ServiceConnect()
 	for {
 		var t map[string]uint
 		e := global.Conn.ReadJSON(&t)
 		if e != nil {
+			util.Event.ServiceDisconnect()
 			_ = global.Conn.Close()
 			for global.ConnectWs() != nil {
 				time.Sleep(time.Second / 2)
 			}
+			util.Event.ServiceConnect()
 			continue
 		}
 

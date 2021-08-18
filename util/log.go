@@ -20,3 +20,11 @@ func (a *event) NewPeer(name string) {
 func (a *event) LostPeer(name string) {
 	a.e("peer", "lost "+name)
 }
+
+func (a *event) ServiceConnect() {
+	a.e("service", "connected")
+}
+
+func (a *event) ServiceDisconnect() {
+	a.e("service", "lose connection")
+}
