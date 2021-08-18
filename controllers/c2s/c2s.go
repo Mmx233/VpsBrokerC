@@ -18,6 +18,14 @@ func SReceiver() {
 	for {
 		var t map[string]uint
 		e := global.Conn.ReadJSON(&t)
+		if e != nil {
+			_ = global.Conn.Close()
+			for global.ConnectWs() != nil {
+				time.Sleep(time.Second / 2)
+			}
+			continue
+		}
+
 		delete(t, global.Self)
 		global.Neighbors.Lock.Lock()
 		for k, v := range t {
@@ -34,13 +42,6 @@ func SReceiver() {
 			}
 		}
 		global.Neighbors.Lock.Unlock()
-		if e != nil {
-			_ = global.Conn.Close()
-			for global.ConnectWs() != nil {
-				time.Sleep(time.Second / 2)
-			}
-		}
-
 		controllers.Conn.Renew()
 	}
 }
