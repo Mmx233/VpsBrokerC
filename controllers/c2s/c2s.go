@@ -47,7 +47,7 @@ func SReceiver() {
 
 func GetSelf() (string, error) {
 	_, res, e := tool.HTTP.Get(
-		util.Url.Http(global.Config.Remote.Ip, global.Config.Remote.Port, global.Config.Remote.SSL)+"/c/self",
+		util.Url.Http(global.Config.Remote.Host, global.Config.Remote.Port, global.Config.Remote.SSL)+"/c/self",
 		map[string]interface{}{
 			"Authorization": global.Config.Remote.AccessKey,
 		},

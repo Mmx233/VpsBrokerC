@@ -11,7 +11,7 @@ type Settings struct {
 }
 
 type Remote struct {
-	Ip        string
+	Host      string
 	Port      uint
 	SSL       bool
 	AccessKey string
