@@ -138,7 +138,7 @@ func (a *conn) ForceConnect(ip string, port uint) {
 	conn, e := a.Connect(ip, port)
 	if e != nil {
 		for e != nil {
-			log.Println("连接client失败：/n", e)
+			log.Println("连接client失败：\n", e)
 			time.Sleep(time.Second)
 			conn, e = a.Connect(ip, port)
 		}

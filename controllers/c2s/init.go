@@ -13,7 +13,7 @@ func init() {
 		global.Self, e = GetSelf()
 		return e
 	}, 5, func(e error) {
-		log.Println("获取ip失败：/n", e)
+		log.Println("获取ip失败：\n", e)
 	}) != nil {
 		log.Println("超出重试次数")
 		os.Exit(2)

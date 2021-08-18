@@ -11,7 +11,7 @@ import (
 
 func init() {
 	if util.Try(ConnectWs, 5, func(e error) {
-		log.Println("连接service失败：/n", e)
+		log.Println("连接service失败：\n", e)
 	}) != nil {
 		log.Println("超出重试次数")
 		os.Exit(2)
@@ -23,7 +23,7 @@ func init() {
 			Port: Config.Settings.Port,
 		})
 	}, 5, func(e error) {
-		log.Println("发送初始化信息失败：/n", e)
+		log.Println("发送初始化信息失败：\n", e)
 	}) != nil {
 		log.Println("超出重试次数")
 		os.Exit(2)
