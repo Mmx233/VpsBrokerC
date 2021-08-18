@@ -33,7 +33,7 @@ func (a *conn) Connect(ip string, port uint) (*websocket.Conn, error) {
 	}
 
 	conn2, _, e := websocket.DefaultDialer.Dial(
-		"ws://"+ip+":"+fmt.Sprint(port), global.AuthHeader)
+		"ws://"+ip+":"+fmt.Sprint(port)+"/c/", global.AuthHeader)
 
 	return conn2, e
 }
@@ -135,7 +135,7 @@ func (a *conn) ForceConnect(ip string, port uint) {
 	conn, e := a.Connect(ip, port)
 	if e != nil {
 		for e != nil {
-			log.Println("连接client失败：\n", e)
+			log.Println("连接client "+ip+" 失败：\n", e)
 			time.Sleep(time.Second)
 			conn, e = a.Connect(ip, port)
 		}
