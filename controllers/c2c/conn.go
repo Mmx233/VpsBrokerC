@@ -42,7 +42,6 @@ func (a *conn) Connected(ip string) bool {
 	a.lock.RLock()
 	v, ok := a.Pool[ip]
 	a.lock.RUnlock()
-	util.Event.NewPeer(ip)
 	return ok && v != nil
 }
 
@@ -85,6 +84,7 @@ func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 	a.lock.Lock()
 	a.Pool[ip] = conn
 	a.lock.Unlock()
+	util.Event.NewPeer(ip)
 
 	//心跳
 	var e error
