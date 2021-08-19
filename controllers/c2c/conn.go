@@ -48,7 +48,7 @@ func (a *conn) Renew() {
 	var del bool
 	for k := range a.Pool {
 		if _, ok := global.Neighbors.Data[k]; !ok {
-			a.Pool[k].Close()
+			_ = a.Pool[k].Close()
 			delete(a.Pool, k)
 			del = true
 		}
@@ -77,6 +77,7 @@ func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 	a.Pool[ip] = conn
 	a.Lock.Unlock()
 	util.Event.NewPeer(ip)
+	service.Stat.Up(ip, time.Now().UnixNano())
 
 	//心跳
 	var e error
@@ -116,6 +117,7 @@ func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 	if _, ok := a.Pool[ip]; !ok {
 		return
 	}
+	service.Stat.Down(ip)
 	a.ForceConnect(ip, port)
 }
 
