@@ -14,34 +14,26 @@ import (
 
 type conn struct {
 	Pool map[string]*websocket.Conn
-	lock *sync.RWMutex
+	Lock *sync.RWMutex
 }
 
 // Conn c2c连接池
 var Conn = conn{
 	Pool: make(map[string]*websocket.Conn),
-	lock: &sync.RWMutex{},
+	Lock: &sync.RWMutex{},
 }
 
 // Connect ws连接
 func (a *conn) Connect(ip string, port uint) (*websocket.Conn, error) {
-	a.lock.Lock()
-	defer a.lock.Unlock()
-	conn, ok := a.Pool[ip]
-	if ok {
-		_ = conn.Close()
-	}
-
-	conn2, _, e := websocket.DefaultDialer.Dial(
+	conn, _, e := websocket.DefaultDialer.Dial(
 		"ws://"+ip+":"+fmt.Sprint(port)+"/c/", global.AuthHeader)
-
-	return conn2, e
+	return conn, e
 }
 
 func (a *conn) Connected(ip string) bool {
-	a.lock.RLock()
+	a.Lock.RLock()
 	v, ok := a.Pool[ip]
-	a.lock.RUnlock()
+	a.Lock.RUnlock()
 	return ok && v != nil
 }
 
@@ -49,14 +41,14 @@ func (a *conn) Connected(ip string) bool {
 func (a *conn) Renew() {
 	global.Neighbors.Lock.RLock()
 	defer global.Neighbors.Lock.RUnlock()
-	a.lock.Lock()
-	defer a.lock.Unlock()
+	a.Lock.Lock()
+	defer a.Lock.Unlock()
 
 	//断开被删除客户端
 	var del bool
 	for k := range a.Pool {
 		if _, ok := global.Neighbors.Data[k]; !ok {
-			_ = a.Pool[k].Close()
+			a.Pool[k].Close()
 			delete(a.Pool, k)
 			del = true
 		}
@@ -81,9 +73,9 @@ func (a *conn) Renew() {
 
 // MakeConnChan 处理客户端连接协程
 func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
-	a.lock.Lock()
+	a.Lock.Lock()
 	a.Pool[ip] = conn
-	a.lock.Unlock()
+	a.Lock.Unlock()
 	util.Event.NewPeer(ip)
 
 	//心跳
@@ -116,30 +108,31 @@ func (a *conn) MakeConnChan(ip string, port uint, conn *websocket.Conn) {
 	}
 
 	//连接断开
-	a.lock.RLock()
-	defer a.lock.RUnlock()
-	if conn == nil { //预防冲突
-		return
-	}
+	a.Lock.RLock()
+	defer a.Lock.RUnlock()
 	_ = conn.Close()
 	conn = nil
 	util.Event.LostPeer(ip)
 	if _, ok := a.Pool[ip]; !ok {
 		return
 	}
-	go a.ForceConnect(ip, port)
+	a.ForceConnect(ip, port)
 }
 
 // ForceConnect 主动连接客户端
 func (a *conn) ForceConnect(ip string, port uint) {
-	conn, e := a.Connect(ip, port)
-	if e != nil {
-		for e != nil {
-			log.Println("连接client "+ip+" 失败：\n", e)
-			time.Sleep(time.Second)
-			conn, e = a.Connect(ip, port)
+	conn2, e := a.Connect(ip, port)
+	for e != nil {
+		a.Lock.RLock()
+		if conn, ok := a.Pool[ip]; !ok || conn != nil {
+			a.Lock.RUnlock()
+			return
 		}
+		a.Lock.RUnlock()
+		log.Println("连接client "+ip+" 失败：\n", e)
+		time.Sleep(time.Second)
+		conn2, e = a.Connect(ip, port)
 	}
 
-	a.MakeConnChan(ip, port, conn)
+	a.MakeConnChan(ip, port, conn2)
 }
