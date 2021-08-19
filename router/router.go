@@ -9,8 +9,8 @@ var G *gin.Engine
 
 func init() {
 	gin.SetMode(gin.ReleaseMode)
-	G = gin.Default()
-	G.Use(middlewares.Auth())
+	G = gin.New()
+	G.Use(gin.Recovery(), middlewares.Auth())
 
 	routerC2c(G.Group("/c"))
 	routerC2p(G.Group("/p"))
